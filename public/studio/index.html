@@ -9,6 +9,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="LUMICAP">
+  <meta property="og:title" content="LUMICAP — 撮る。整える。キーで速く。">
+  <meta property="og:description" content="画面キャプチャ、録画、注釈、手順書、AIタスクをキーボードで高速操作。">
+  <meta property="og:image" content="https://lumicap-chatgpt-app.minopro.workers.dev/og.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon-192.png" sizes="192x192">
   <link rel="apple-touch-icon" href="./icon-192.png">
@@ -33,8 +37,9 @@
       <a href="#security">プライバシー</a>
     </nav>
     <div class="header-actions">
+      <button class="install-mini shortcut-mini" data-action="shortcuts" aria-keyshortcuts="?" title="ショートカット一覧（?）">キー <kbd>?</kbd></button>
       <button class="install-mini" data-action="install">インストール</button>
-      <button class="header-cta" data-action="capture">今すぐキャプチャ <span>↗</span></button>
+      <button class="header-cta" data-action="capture" aria-keyshortcuts="Control+Shift+1 Meta+Shift+1">今すぐキャプチャ <span>↗</span></button>
     </div>
   </header>
 
@@ -45,9 +50,9 @@
         <h1>説明は、<em>撮って、</em><br>整えて、渡すだけ。</h1>
         <p class="hero-lead">画面キャプチャ、録画、注釈、手順書作成をひとつに。画像はクラウドへ送らず、あなたのブラウザ内だけで処理します。</p>
         <div class="hero-actions">
-          <button class="button primary" data-action="capture"><span class="button-icon">⌗</span> 画面をキャプチャ</button>
-          <button class="button secondary" data-action="record"><span class="record-dot"></span> 録画を開始</button>
-          <button class="button ai-button" data-action="ai"><span>✦</span> AIタスク</button>
+          <button class="button primary" data-action="capture" aria-keyshortcuts="Control+Shift+1 Meta+Shift+1"><span class="button-icon">⌗</span> 画面をキャプチャ</button>
+          <button class="button secondary" data-action="record" aria-keyshortcuts="Control+Shift+2 Meta+Shift+2"><span class="record-dot"></span> 録画を開始</button>
+          <button class="button ai-button" data-action="ai" aria-keyshortcuts="Control+Shift+3 Meta+Shift+3"><span>✦</span> AIタスク</button>
         </div>
         <div class="trust-row">
           <div><b>100%</b><span>ローカル処理</span></div>
@@ -68,13 +73,13 @@
           </div>
           <div class="app-body">
             <aside class="tool-rail" aria-label="編集ツール">
-              <button class="tool active" data-tool="select" aria-label="選択"><span>↖</span></button>
-              <button class="tool" data-tool="pen" aria-label="ペン"><span>⌁</span></button>
-              <button class="tool" data-tool="arrow" aria-label="矢印"><span>↗</span></button>
-              <button class="tool" data-tool="rect" aria-label="四角形"><span>□</span></button>
-              <button class="tool" data-tool="highlight" aria-label="ハイライト"><span>▰</span></button>
-              <button class="tool" data-tool="text" aria-label="テキスト"><span>T</span></button>
-              <button class="tool" data-tool="blur" aria-label="ぼかし"><span>▦</span></button>
+              <button class="tool active" data-tool="select" aria-label="選択" aria-keyshortcuts="V" title="選択（V）"><span>↖</span></button>
+              <button class="tool" data-tool="pen" aria-label="ペン" aria-keyshortcuts="P" title="ペン（P）"><span>⌁</span></button>
+              <button class="tool" data-tool="arrow" aria-label="矢印" aria-keyshortcuts="A" title="矢印（A）"><span>↗</span></button>
+              <button class="tool" data-tool="rect" aria-label="四角形" aria-keyshortcuts="R" title="四角形（R）"><span>□</span></button>
+              <button class="tool" data-tool="highlight" aria-label="ハイライト" aria-keyshortcuts="H" title="ハイライト（H）"><span>▰</span></button>
+              <button class="tool" data-tool="text" aria-label="テキスト" aria-keyshortcuts="T" title="テキスト（T）"><span>T</span></button>
+              <button class="tool" data-tool="blur" aria-label="ぼかし" aria-keyshortcuts="B" title="ぼかし（B）"><span>▦</span></button>
               <span class="rail-spacer"></span>
               <button class="tool" data-action="undo" aria-label="元に戻す"><span>↶</span></button>
             </aside>
@@ -303,6 +308,46 @@
     <button data-action="record-stop">録画を停止</button>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <dialog class="modal shortcut-dialog" id="shortcutDialog" aria-labelledby="shortcutTitle">
+    <form method="dialog" class="dialog-close-form"><button aria-label="閉じる">×</button></form>
+    <div class="dialog-kicker">KEYBOARD FIRST</div>
+    <h2 id="shortcutTitle">ショートカット</h2>
+    <p class="dialog-lead">Windows / UbuntuはCtrl、macOSは⌘を使用します。LUMICAPがアクティブなときに動作します。</p>
+    <div class="shortcut-groups">
+      <section>
+        <h3>すぐ実行</h3>
+        <dl>
+          <div><dt>画面キャプチャ</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>1</kbd></dd></div>
+          <div><dt>録画 開始 / 停止</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>2</kbd></dd></div>
+          <div><dt>AIタスク</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>3</kbd></dd></div>
+          <div><dt>手順書を生成</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>4</kbd></dd></div>
+          <div><dt>画像を読み込む</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>5</kbd></dd></div>
+          <div><dt>PNGを書き出す</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>S</kbd></dd></div>
+        </dl>
+      </section>
+      <section>
+        <h3>編集ツール</h3>
+        <dl>
+          <div><dt>選択</dt><dd><kbd>V</kbd></dd></div>
+          <div><dt>ペン</dt><dd><kbd>P</kbd></dd></div>
+          <div><dt>矢印</dt><dd><kbd>A</kbd></dd></div>
+          <div><dt>四角形</dt><dd><kbd>R</kbd></dd></div>
+          <div><dt>ハイライト</dt><dd><kbd>H</kbd></dd></div>
+          <div><dt>テキスト</dt><dd><kbd>T</kbd></dd></div>
+          <div><dt>ぼかし</dt><dd><kbd>B</kbd></dd></div>
+        </dl>
+      </section>
+      <section>
+        <h3>共通</h3>
+        <dl>
+          <div><dt>元に戻す</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Z</kbd></dd></div>
+          <div><dt>ショートカット一覧</dt><dd><kbd>?</kbd></dd></div>
+          <div><dt>停止 / ダイアログを閉じる</dt><dd><kbd>Esc</kbd></dd></div>
+        </dl>
+      </section>
+    </div>
+  </dialog>
 
   <dialog class="modal install-dialog" id="installDialog" aria-labelledby="installTitle">
     <form method="dialog" class="dialog-close-form"><button aria-label="閉じる">×</button></form>

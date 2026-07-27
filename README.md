@@ -22,6 +22,22 @@ Both tools are read-only, idempotent, and non-destructive. Captures and images
 are not stored by the MCP service or sent to third-party AI services
 automatically.
 
+## Keyboard shortcuts
+
+- `Ctrl/⌘ + Shift + 1` — capture screen
+- `Ctrl/⌘ + Shift + 2` — start or stop recording
+- `Ctrl/⌘ + Shift + 3` — open AI tasks
+- `Ctrl/⌘ + Shift + 4` — generate a guide
+- `Ctrl/⌘ + Shift + 5` — import an image
+- `Ctrl/⌘ + Shift + S` — export PNG
+- `V P A R H T B` — select, pen, arrow, rectangle, highlight, text, blur
+- `Ctrl/⌘ + Z` — undo
+- `?` — open the complete shortcut list
+- `Esc` — stop recording or close a dialog
+
+Shortcuts work while the PWA or browser tab is active. Browser security does
+not allow a normal PWA to register OS-global shortcuts while it is inactive.
+
 ## Development
 
 ```bash

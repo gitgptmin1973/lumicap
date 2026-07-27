@@ -43,6 +43,27 @@ test("root sends visitors to the published LUMICAP PWA", async () => {
   assert.match(html, /LUMICAP/);
   assert.match(html, /PUBLIC PWA · CHATGPT APP/);
   assert.match(html, /data-action="pwa-install"/);
+  assert.match(html, /id="shortcutDialog"/);
+  assert.match(html, /aria-keyshortcuts="Control\+Shift\+1 Meta\+Shift\+1"/);
+});
+
+test("keyboard shortcuts cover capture, record, AI, export, and editor tools", async () => {
+  const script = await readFile(
+    new URL("../public/studio/app.js", import.meta.url),
+    "utf8",
+  );
+  assert.match(script, /"1": captureScreen/);
+  assert.match(script, /"2": toggleRecording/);
+  assert.match(script, /"3": \(\) => openAiDialog\(\)/);
+  assert.match(script, /"4": createGuide/);
+  assert.match(script, /"5": \(\) => fileInput\.click\(\)/);
+  assert.match(script, /"s": downloadImage/);
+  assert.match(
+    script,
+    /v: "select", p: "pen", a: "arrow", r: "rect", h: "highlight", t: "text", b: "blur"/,
+  );
+  assert.match(script, /event\.key === "\?"/);
+  assert.match(script, /input, textarea, select/);
 });
 
 test("health endpoint reports the production service", async () => {

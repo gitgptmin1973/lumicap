@@ -14,6 +14,7 @@
   const recordTimer = document.querySelector("#recordTimer");
   const installDialog = document.querySelector("#installDialog");
   const aiDialog = document.querySelector("#aiDialog");
+  const shortcutDialog = document.querySelector("#shortcutDialog");
   const detectedPlatform = document.querySelector("#detectedPlatform");
   const installNote = document.querySelector("#installNote");
 
@@ -44,6 +45,25 @@
   const setSaved = (message = "ローカル保存") => {
     document.querySelector("#saveState").textContent = message;
   };
+
+  function selectTool(tool) {
+    const button = document.querySelector(`[data-tool="${tool}"]`);
+    if (!button) return;
+    document.querySelectorAll("[data-tool]").forEach((el) => el.classList.remove("active"));
+    button.classList.add("active");
+    activeTool = tool;
+    canvas.style.cursor = activeTool === "select" ? "default" : "crosshair";
+    toast(`${button.getAttribute("aria-label")}ツール`);
+  }
+
+  function toggleRecording() {
+    if (recorder?.state === "recording") stopRecording();
+    else startRecording();
+  }
+
+  function openShortcutDialog() {
+    if (!shortcutDialog.open) shortcutDialog.showModal();
+  }
 
   function pointFromEvent(event) {
     const rect = canvas.getBoundingClientRect();
@@ -490,18 +510,17 @@
     const button = event.target.closest("[data-action]");
     if (!button) return;
     const actions = {
-      capture: captureScreen, record: startRecording, "record-stop": stopRecording,
+      capture: captureScreen, record: toggleRecording, "record-stop": stopRecording,
       upload: () => fileInput.click(), download: downloadImage, copy: copyImage,
       undo, guide: createGuide, clear: clearHistory,
       install: showInstallDialog, ai: () => openAiDialog(),
+      shortcuts: openShortcutDialog,
       "pwa-install": installPwa, "ios-help": showIosHelp
     };
     actions[button.dataset.action]?.();
   });
   document.querySelectorAll("[data-tool]").forEach((button) => button.addEventListener("click", () => {
-    document.querySelectorAll("[data-tool]").forEach((el) => el.classList.remove("active"));
-    button.classList.add("active"); activeTool = button.dataset.tool;
-    canvas.style.cursor = activeTool === "select" ? "default" : "crosshair";
+    selectTool(button.dataset.tool);
   }));
   document.querySelectorAll("[data-step]").forEach((button) => button.addEventListener("click", () => {
     document.querySelectorAll("[data-step]").forEach((el) => el.classList.remove("active"));
@@ -534,9 +553,51 @@
     event.preventDefault(); dropZone.style.outline = ""; readFile(event.dataTransfer.files[0]);
   });
   window.addEventListener("keydown", (event) => {
-    if (event.ctrlKey && event.shiftKey && event.key === "1") { event.preventDefault(); captureScreen(); }
-    if (event.ctrlKey && event.key.toLowerCase() === "z") { event.preventDefault(); undo(); }
-    if (event.key === "Escape" && recorder?.state === "recording") stopRecording();
+    const target = event.target;
+    const isEditing = target instanceof Element && !!target.closest("input, textarea, select, [contenteditable='true']");
+    if (isEditing && event.key !== "Escape") return;
+
+    const command = event.ctrlKey || event.metaKey;
+    const key = event.key.toLowerCase();
+    if (command && event.shiftKey) {
+      const actions = {
+        "1": captureScreen,
+        "2": toggleRecording,
+        "3": () => openAiDialog(),
+        "4": createGuide,
+        "5": () => fileInput.click(),
+        "s": downloadImage
+      };
+      if (actions[key]) {
+        event.preventDefault();
+        actions[key]();
+        return;
+      }
+    }
+    if (command && !event.shiftKey && key === "z") {
+      event.preventDefault();
+      undo();
+      return;
+    }
+    if (!command && !event.altKey && !event.shiftKey) {
+      const tools = { v: "select", p: "pen", a: "arrow", r: "rect", h: "highlight", t: "text", b: "blur" };
+      if (tools[key]) {
+        event.preventDefault();
+        selectTool(tools[key]);
+        return;
+      }
+    }
+    if (event.key === "?") {
+      event.preventDefault();
+      openShortcutDialog();
+      return;
+    }
+    if (event.key === "Escape") {
+      if (recorder?.state === "recording") stopRecording();
+      [shortcutDialog, installDialog, aiDialog].forEach((dialog) => {
+        if (dialog?.open) dialog.close();
+      });
+    }
   });
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();

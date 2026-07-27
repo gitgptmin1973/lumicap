@@ -1,4 +1,4 @@
-const CACHE_NAME = "lumicap-studio-v3-public";
+const CACHE_NAME = "lumicap-studio-v4-shortcuts";
 const APP_SHELL = [
   "./",
   "./index.html",

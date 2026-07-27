@@ -37,6 +37,7 @@
       <a href="#security">プライバシー</a>
     </nav>
     <div class="header-actions">
+      <button class="install-mini vision-mini" data-action="vision" aria-keyshortcuts="Control+Shift+6 Meta+Shift+6"><span aria-hidden="true">◐</span> 見やすさ</button>
       <button class="install-mini shortcut-mini" data-action="shortcuts" aria-keyshortcuts="?" title="ショートカット一覧（?）">キー <kbd>?</kbd></button>
       <button class="install-mini" data-action="install">インストール</button>
       <button class="header-cta" data-action="capture" aria-keyshortcuts="Control+Shift+1 Meta+Shift+1">今すぐキャプチャ <span>↗</span></button>
@@ -54,6 +55,14 @@
           <button class="button secondary" data-action="record" aria-keyshortcuts="Control+Shift+2 Meta+Shift+2"><span class="record-dot"></span> 録画を開始</button>
           <button class="button ai-button" data-action="ai" aria-keyshortcuts="Control+Shift+3 Meta+Shift+3"><span>✦</span> AIタスク</button>
         </div>
+        <nav class="quick-flow" aria-label="基本操作">
+          <span class="quick-flow-label">迷わない3ステップ</span>
+          <button data-action="capture"><b>1</b><span>撮る<small>画面を選択</small></span></button>
+          <i aria-hidden="true">→</i>
+          <button data-action="edit"><b>2</b><span>整える<small>注釈を追加</small></span></button>
+          <i aria-hidden="true">→</i>
+          <button data-action="download"><b>3</b><span>保存<small>PNGに出力</small></span></button>
+        </nav>
         <div class="trust-row">
           <div><b>100%</b><span>ローカル処理</span></div>
           <div><b>4K</b><span>高解像度対応</span></div>
@@ -308,6 +317,42 @@
     <button data-action="record-stop">録画を停止</button>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <button class="vision-dock" data-action="vision" aria-keyshortcuts="Control+Shift+6 Meta+Shift+6">
+    <span aria-hidden="true">◐</span><span>見やすさ</span><small id="visionDockState">標準</small>
+  </button>
+  <div class="visually-hidden" id="accessibilityStatus" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <dialog class="modal vision-dialog" id="visionDialog" aria-labelledby="visionTitle">
+    <form method="dialog" class="dialog-close-form"><button aria-label="見やすさ設定を閉じる">×</button></form>
+    <div class="dialog-kicker">ACCESSIBILITY CONTROL</div>
+    <h2 id="visionTitle">見やすさ設定</h2>
+    <p class="dialog-lead">文字・配色・動きをその場で調整できます。設定はこの端末に保存されます。</p>
+    <div class="vision-preview" aria-hidden="true"><span>読みやすい表示</span><strong>大切な情報を、くっきり。</strong><small>撮る → 整える → 保存</small></div>
+    <fieldset class="vision-group">
+      <legend>文字サイズ</legend>
+      <div class="vision-choice-grid" role="group" aria-label="文字サイズ">
+        <button type="button" data-text-scale="default" aria-pressed="true"><span class="font-sample font-sample-s">あ</span><b>標準</b><small>100%</small></button>
+        <button type="button" data-text-scale="large" aria-pressed="false"><span class="font-sample font-sample-m">あ</span><b>大きい</b><small>125%</small></button>
+        <button type="button" data-text-scale="xlarge" aria-pressed="false"><span class="font-sample font-sample-l">あ</span><b>最大</b><small>150%</small></button>
+      </div>
+    </fieldset>
+    <div class="vision-toggle-list">
+      <button type="button" data-action="contrast" aria-pressed="false">
+        <span class="vision-toggle-icon contrast-icon" aria-hidden="true">◐</span>
+        <span><b>高コントラスト</b><small>文字と境界をより明瞭にします</small></span>
+        <i aria-hidden="true"></i>
+      </button>
+      <button type="button" data-action="motion" aria-pressed="false">
+        <span class="vision-toggle-icon motion-icon" aria-hidden="true">≈</span>
+        <span><b>動きを減らす</b><small>アニメーションと滑らかな移動を止めます</small></span>
+        <i aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="vision-dialog-actions">
+      <button type="button" class="vision-reset" data-action="vision-reset">標準設定に戻す</button>
+      <form method="dialog"><button class="button primary">この設定で使う</button></form>
+    </div>
+  </dialog>
 
   <dialog class="modal shortcut-dialog" id="shortcutDialog" aria-labelledby="shortcutTitle">
     <form method="dialog" class="dialog-close-form"><button aria-label="閉じる">×</button></form>
@@ -323,6 +368,7 @@
           <div><dt>AIタスク</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>3</kbd></dd></div>
           <div><dt>手順書を生成</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>4</kbd></dd></div>
           <div><dt>画像を読み込む</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>5</kbd></dd></div>
+          <div><dt>見やすさ設定</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>6</kbd></dd></div>
           <div><dt>PNGを書き出す</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>S</kbd></dd></div>
         </dl>
       </section>

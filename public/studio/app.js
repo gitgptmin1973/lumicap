@@ -15,8 +15,12 @@
   const installDialog = document.querySelector("#installDialog");
   const aiDialog = document.querySelector("#aiDialog");
   const shortcutDialog = document.querySelector("#shortcutDialog");
+  const visionDialog = document.querySelector("#visionDialog");
+  const accessibilityStatus = document.querySelector("#accessibilityStatus");
+  const visionDockState = document.querySelector("#visionDockState");
   const detectedPlatform = document.querySelector("#detectedPlatform");
   const installNote = document.querySelector("#installNote");
+  const accessibilityStorageKey = "lumicap-accessibility-v1";
 
   let activeTool = "select";
   let drawing = false;
@@ -30,6 +34,7 @@
   let recordStartedAt = 0;
   let recordInterval = null;
   let deferredInstallPrompt = null;
+  let accessibilityState = loadAccessibilityState();
 
   const pad = (n) => String(n).padStart(2, "0");
   const stamp = () => {
@@ -45,6 +50,83 @@
   const setSaved = (message = "ローカル保存") => {
     document.querySelector("#saveState").textContent = message;
   };
+
+  function loadAccessibilityState() {
+    const defaults = {
+      textScale: "default",
+      highContrast: false,
+      reducedMotion: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches || false
+    };
+    try {
+      const saved = JSON.parse(localStorage.getItem(accessibilityStorageKey) || "{}");
+      return {
+        textScale: ["default", "large", "xlarge"].includes(saved.textScale) ? saved.textScale : defaults.textScale,
+        highContrast: typeof saved.highContrast === "boolean" ? saved.highContrast : defaults.highContrast,
+        reducedMotion: typeof saved.reducedMotion === "boolean" ? saved.reducedMotion : defaults.reducedMotion
+      };
+    } catch (_) {
+      return defaults;
+    }
+  }
+
+  function accessibilitySummary() {
+    const sizeLabels = { default: "標準", large: "大きい", xlarge: "最大" };
+    const active = [sizeLabels[accessibilityState.textScale]];
+    if (accessibilityState.highContrast) active.push("高コントラスト");
+    if (accessibilityState.reducedMotion) active.push("動き少なめ");
+    return active.join("・");
+  }
+
+  function applyAccessibilityState(announce = false) {
+    const root = document.documentElement;
+    root.dataset.textScale = accessibilityState.textScale;
+    root.dataset.contrast = accessibilityState.highContrast ? "high" : "standard";
+    root.dataset.motion = accessibilityState.reducedMotion ? "reduced" : "standard";
+    document.querySelectorAll("[data-text-scale]").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.textScale === accessibilityState.textScale));
+    });
+    document.querySelector('[data-action="contrast"]')?.setAttribute("aria-pressed", String(accessibilityState.highContrast));
+    document.querySelector('[data-action="motion"]')?.setAttribute("aria-pressed", String(accessibilityState.reducedMotion));
+    visionDockState.textContent = accessibilitySummary();
+    try {
+      localStorage.setItem(accessibilityStorageKey, JSON.stringify(accessibilityState));
+    } catch (_) {}
+    if (announce) accessibilityStatus.textContent = `見やすさ設定を変更しました。${accessibilitySummary()}。`;
+  }
+
+  function openVisionDialog() {
+    if (!visionDialog.open) visionDialog.showModal();
+  }
+
+  function setTextScale(textScale) {
+    if (!["default", "large", "xlarge"].includes(textScale)) return;
+    accessibilityState.textScale = textScale;
+    applyAccessibilityState(true);
+  }
+
+  function toggleContrast() {
+    accessibilityState.highContrast = !accessibilityState.highContrast;
+    applyAccessibilityState(true);
+  }
+
+  function toggleMotion() {
+    accessibilityState.reducedMotion = !accessibilityState.reducedMotion;
+    applyAccessibilityState(true);
+  }
+
+  function resetAccessibility() {
+    accessibilityState = { textScale: "default", highContrast: false, reducedMotion: false };
+    applyAccessibilityState(true);
+  }
+
+  function focusEditor() {
+    document.querySelector("#studio")?.scrollIntoView({
+      behavior: accessibilityState.reducedMotion ? "auto" : "smooth",
+      block: "center"
+    });
+    selectTool("pen");
+    document.querySelector('[data-tool="pen"]')?.focus();
+  }
 
   function selectTool(tool) {
     const button = document.querySelector(`[data-tool="${tool}"]`);
@@ -246,7 +328,7 @@
       stream.getTracks().forEach((track) => track.stop());
       const url = temp.toDataURL("image/png");
       await loadImageSource(url, `capture-${stamp()}.png`);
-      document.querySelector("#studio").scrollIntoView({ behavior: "smooth", block: "center" });
+      document.querySelector("#studio").scrollIntoView({ behavior: accessibilityState.reducedMotion ? "auto" : "smooth", block: "center" });
       toast("キャプチャしました。すぐに編集できます");
     } catch (error) {
       if (error?.name !== "NotAllowedError") toast("画面を取得できませんでした");
@@ -391,12 +473,12 @@
     const platform = getPlatform();
     if (platform.id === "ios") return showIosHelp();
     installNote.textContent = "ブラウザのメニューから「アプリをインストール」または「ホーム画面に追加」を選択してください。";
-    installNote.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    installNote.scrollIntoView({ behavior: accessibilityState.reducedMotion ? "auto" : "smooth", block: "nearest" });
   }
 
   function showIosHelp() {
     installNote.textContent = "iPhone／iPadではSafariで開き、共有ボタン（□↑）→「ホーム画面に追加」→「追加」の順に選択してください。";
-    installNote.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    installNote.scrollIntoView({ behavior: accessibilityState.reducedMotion ? "auto" : "smooth", block: "nearest" });
   }
 
   const taskTemplates = {
@@ -515,9 +597,14 @@
       undo, guide: createGuide, clear: clearHistory,
       install: showInstallDialog, ai: () => openAiDialog(),
       shortcuts: openShortcutDialog,
+      vision: openVisionDialog, edit: focusEditor,
+      contrast: toggleContrast, motion: toggleMotion, "vision-reset": resetAccessibility,
       "pwa-install": installPwa, "ios-help": showIosHelp
     };
     actions[button.dataset.action]?.();
+  });
+  document.querySelectorAll("[data-text-scale]").forEach((button) => {
+    button.addEventListener("click", () => setTextScale(button.dataset.textScale));
   });
   document.querySelectorAll("[data-tool]").forEach((button) => button.addEventListener("click", () => {
     selectTool(button.dataset.tool);
@@ -566,6 +653,7 @@
         "3": () => openAiDialog(),
         "4": createGuide,
         "5": () => fileInput.click(),
+        "6": openVisionDialog,
         "s": downloadImage
       };
       if (actions[key]) {
@@ -594,7 +682,7 @@
     }
     if (event.key === "Escape") {
       if (recorder?.state === "recording") stopRecording();
-      [shortcutDialog, installDialog, aiDialog].forEach((dialog) => {
+      [shortcutDialog, installDialog, aiDialog, visionDialog].forEach((dialog) => {
         if (dialog?.open) dialog.close();
       });
     }
@@ -618,5 +706,6 @@
   if ("serviceWorker" in navigator && window.isSecureContext) {
     navigator.serviceWorker.register("./sw.js").catch(() => {});
   }
+  applyAccessibilityState();
   registerAgentTools();
 })();

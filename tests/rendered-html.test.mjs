@@ -44,6 +44,9 @@ test("root sends visitors to the published LUMICAP PWA", async () => {
   assert.match(html, /PUBLIC PWA · CHATGPT APP/);
   assert.match(html, /data-action="pwa-install"/);
   assert.match(html, /id="shortcutDialog"/);
+  assert.match(html, /id="visionDialog"/);
+  assert.match(html, /data-text-scale="xlarge"/);
+  assert.match(html, /id="accessibilityStatus"/);
   assert.match(html, /aria-keyshortcuts="Control\+Shift\+1 Meta\+Shift\+1"/);
 });
 
@@ -64,6 +67,21 @@ test("keyboard shortcuts cover capture, record, AI, export, and editor tools", a
   );
   assert.match(script, /event\.key === "\?"/);
   assert.match(script, /input, textarea, select/);
+  assert.match(script, /"6": openVisionDialog/);
+});
+
+test("low-vision preferences persist and include strong focus and OS accessibility fallbacks", async () => {
+  const [script, styles] = await Promise.all([
+    readFile(new URL("../public/studio/app.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/studio/styles.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(script, /lumicap-accessibility-v1/);
+  assert.match(script, /localStorage\.setItem/);
+  assert.match(script, /dataset\.contrast/);
+  assert.match(script, /prefers-reduced-motion: reduce/);
+  assert.match(styles, /outline: 4px solid var\(--focus\)/);
+  assert.match(styles, /@media \(forced-colors: active\)/);
+  assert.match(styles, /html\[data-text-scale="xlarge"\]/);
 });
 
 test("health endpoint reports the production service", async () => {

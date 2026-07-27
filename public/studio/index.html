@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09111f">
+  <meta name="description" content="画面キャプチャ、録画、注釈、手順書作成をローカルで完結するLUMICAP Studio。">
+  <meta name="application-name" content="LUMICAP Studio">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="LUMICAP">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <title>LUMICAP Studio — ローカル画面キャプチャ</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#top">メインコンテンツへ移動</a>
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="LUMICAP Studio ホーム">
+      <span class="brand-mark"><i></i></span>
+      <span>LUMICAP</span>
+      <small>STUDIO</small>
+    </a>
+    <nav aria-label="メインナビゲーション">
+      <a href="#studio">スタジオ</a>
+      <a href="#features">機能</a>
+      <a href="#ai-tasks">AIタスク</a>
+      <a href="#workflow">使い方</a>
+      <a href="#security">プライバシー</a>
+    </nav>
+    <div class="header-actions">
+      <button class="install-mini" data-action="install">インストール</button>
+      <button class="header-cta" data-action="capture">今すぐキャプチャ <span>↗</span></button>
+    </div>
+  </header>
+
+  <main id="top" tabindex="-1">
+    <section class="hero section-shell">
+      <div class="hero-copy">
+        <div class="eyebrow"><span></span> WINDOWS · UBUNTU · ANDROID · iOS</div>
+        <h1>説明は、<em>撮って、</em><br>整えて、渡すだけ。</h1>
+        <p class="hero-lead">画面キャプチャ、録画、注釈、手順書作成をひとつに。画像はクラウドへ送らず、あなたのブラウザ内だけで処理します。</p>
+        <div class="hero-actions">
+          <button class="button primary" data-action="capture"><span class="button-icon">⌗</span> 画面をキャプチャ</button>
+          <button class="button secondary" data-action="record"><span class="record-dot"></span> 録画を開始</button>
+          <button class="button ai-button" data-action="ai"><span>✦</span> AIタスク</button>
+        </div>
+        <div class="trust-row">
+          <div><b>100%</b><span>ローカル処理</span></div>
+          <div><b>4K</b><span>高解像度対応</span></div>
+          <div><b>0</b><span>アカウント不要</span></div>
+          <div><b>4</b><span>OS対応</span></div>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-label="LUMICAP Studioの編集画面プレビュー">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="app-window" id="studio">
+          <div class="window-bar">
+            <div class="window-brand"><span class="mini-mark"></span>LUMICAP <small>STUDIO</small></div>
+            <div class="window-title"><span class="saved-dot"></span><span id="saveState">ローカル保存</span></div>
+            <div class="window-controls"><i></i><i></i><i></i></div>
+          </div>
+          <div class="app-body">
+            <aside class="tool-rail" aria-label="編集ツール">
+              <button class="tool active" data-tool="select" aria-label="選択"><span>↖</span></button>
+              <button class="tool" data-tool="pen" aria-label="ペン"><span>⌁</span></button>
+              <button class="tool" data-tool="arrow" aria-label="矢印"><span>↗</span></button>
+              <button class="tool" data-tool="rect" aria-label="四角形"><span>□</span></button>
+              <button class="tool" data-tool="highlight" aria-label="ハイライト"><span>▰</span></button>
+              <button class="tool" data-tool="text" aria-label="テキスト"><span>T</span></button>
+              <button class="tool" data-tool="blur" aria-label="ぼかし"><span>▦</span></button>
+              <span class="rail-spacer"></span>
+              <button class="tool" data-action="undo" aria-label="元に戻す"><span>↶</span></button>
+            </aside>
+
+            <section class="editor-area">
+              <div class="editor-topbar">
+                <div class="crumb"><span>マイキャプチャ</span><b>/</b><strong id="currentFile">はじめに.png</strong></div>
+                <div class="editor-actions">
+                  <button data-action="copy">コピー</button>
+                  <button class="export" data-action="download">書き出す <span>↓</span></button>
+                </div>
+              </div>
+
+              <div class="canvas-wrap" id="dropZone">
+                <canvas id="editorCanvas" width="960" height="540" aria-label="画像編集キャンバス"></canvas>
+                <div class="empty-state" id="emptyState">
+                  <div class="capture-glyph"><span></span></div>
+                  <strong>画面をキャプチャして開始</strong>
+                  <p>または画像をここにドロップ</p>
+                  <button data-action="capture">画面を選択</button>
+                </div>
+                <input id="fileInput" type="file" accept="image/*" hidden>
+              </div>
+
+              <div class="timeline">
+                <div class="timeline-head">
+                  <span>キャプチャ履歴</span>
+                  <div>
+                    <button data-action="upload" aria-label="画像を追加">＋</button>
+                    <button data-action="clear" aria-label="履歴を消去">•••</button>
+                  </div>
+                </div>
+                <div class="thumbs" id="thumbs">
+                  <button class="thumb starter active" data-starter="true"><span class="thumb-sky"></span><small>はじめに</small></button>
+                  <button class="add-thumb" data-action="capture"><span>＋</span><small>追加</small></button>
+                </div>
+              </div>
+            </section>
+          </div>
+          <div class="window-status">
+            <span><i></i> 端末内で安全に処理中</span>
+            <span id="canvasMeta">960 × 540 px</span>
+          </div>
+        </div>
+        <div class="floating-card privacy-card"><span>✓</span><div><b>アップロードなし</b><small>データは端末の外へ出ません</small></div></div>
+        <div class="floating-card speed-card"><span>⚡</span><div><b>即時編集</b><small>待ち時間ゼロ</small></div></div>
+      </div>
+    </section>
+
+    <section class="logo-strip" aria-label="対応環境">
+      <span>WINDOWS</span><i></i><span>UBUNTU</span><i></i><span>ANDROID</span><i></i><span>iOS / iPadOS</span><i></i><span>OFFLINE PWA</span>
+    </section>
+
+    <section class="ai-lab section-shell" id="ai-tasks">
+      <div class="ai-lab-copy">
+        <span class="kicker light">CAPTURE → THINK → DONE</span>
+        <h2>キャプチャを、<br><em>そのままAIタスクへ。</em></h2>
+        <p>目的を選ぶだけで最適な指示文を自動生成。ChatGPT、Claude、Geminiの新規チャットを開き、画像添付用ファイルも準備します。</p>
+        <button class="button white" data-action="ai">AIタスクを作成 <span>↗</span></button>
+      </div>
+      <div class="ai-console" aria-label="AIタスクの例">
+        <div class="ai-console-bar">
+          <span><i></i> AI TASK DECK</span>
+          <small>LOCAL PROMPT BUILDER</small>
+        </div>
+        <div class="ai-task-list">
+          <button data-ai-preset="bug"><span class="task-symbol coral-bg">!</span><span><b>バグ報告を作成</b><small>再現手順・期待値・重要度を整理</small></span><em>→</em></button>
+          <button data-ai-preset="manual"><span class="task-symbol lime-bg">▤</span><span><b>操作手順書を作成</b><small>初心者向けの手順に変換</small></span><em>→</em></button>
+          <button data-ai-preset="review"><span class="task-symbol purple-bg">✦</span><span><b>UIレビュー</b><small>改善点を優先順位付きで分析</small></span><em>→</em></button>
+          <button data-ai-preset="translate"><span class="task-symbol blue-bg">文</span><span><b>翻訳・要約</b><small>画面内容を日本語で簡潔に整理</small></span><em>→</em></button>
+        </div>
+        <div class="provider-row">
+          <span>送信先を選択</span>
+          <button data-provider-quick="chatgpt"><i class="provider-mark chatgpt-mark">C</i> ChatGPT</button>
+          <button data-provider-quick="claude"><i class="provider-mark claude-mark">A</i> Claude</button>
+          <button data-provider-quick="gemini"><i class="provider-mark gemini-mark">G</i> Gemini</button>
+        </div>
+        <p class="privacy-inline"><span>✓</span> 画像は自動送信されません。送信前に必ず確認できます。</p>
+      </div>
+    </section>
+
+    <section class="features section-shell" id="features">
+      <div class="section-heading">
+        <div>
+          <span class="kicker">ONE TOOL. ZERO FRICTION.</span>
+          <h2>伝えるための機能を、<br><em>最短距離</em>に。</h2>
+        </div>
+        <p>取得から共有まで画面を切り替えずに完結。毎日の小さな待ち時間をなくし、重要な仕事へ集中できます。</p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature-card featured">
+          <div class="feature-index">01</div>
+          <div class="feature-art capture-art">
+            <div class="screen-outline"><div class="selection-box"><i></i><i></i><i></i><i></i></div></div>
+            <span class="shortcut"><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>1</kbd></span>
+          </div>
+          <div class="feature-copy">
+            <span class="feature-icon">⌗</span>
+            <h3>自在なキャプチャ</h3>
+            <p>画面・ウィンドウ・タブを選び、表示された瞬間を高解像度で取得。画像のドロップ読み込みにも対応します。</p>
+          </div>
+        </article>
+        <article class="feature-card">
+          <div class="feature-index">02</div>
+          <div class="mini-art annotation-art"><span class="arrow-line">↗</span><span class="highlight-line"></span><span class="note-bubble">ここを確認</span></div>
+          <div class="feature-copy">
+            <span class="feature-icon coral">✎</span>
+            <h3>迷わない注釈編集</h3>
+            <p>ペン、矢印、矩形、ハイライト、テキスト、ぼかしをワンクリックで。</p>
+          </div>
+        </article>
+        <article class="feature-card dark">
+          <div class="feature-index">03</div>
+          <div class="mini-art record-art">
+            <div class="record-preview"><span class="pulse"></span><b id="demoTimer">00:18</b></div>
+            <div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="feature-copy">
+            <span class="feature-icon purple">●</span>
+            <h3>軽快な画面録画</h3>
+            <p>画面と音声をWebMで記録。停止と同時に端末へ保存できます。</p>
+          </div>
+        </article>
+        <article class="feature-card">
+          <div class="feature-index">04</div>
+          <div class="mini-art docs-art">
+            <div class="doc-sheet"><span></span><i></i><i></i><i></i></div>
+            <div class="doc-sheet behind"><span></span></div>
+            <b>PDF / 印刷</b>
+          </div>
+          <div class="feature-copy">
+            <span class="feature-icon green">▤</span>
+            <h3>手順書を自動整形</h3>
+            <p>キャプチャ履歴を読みやすい手順書へ。印刷やPDF保存に最適化します。</p>
+          </div>
+        </article>
+        <article class="feature-card wide">
+          <div class="feature-index">05</div>
+          <div class="share-copy">
+            <span class="feature-icon blue">↗</span>
+            <h3>共有は、あなたの方法で。</h3>
+            <p>PNG保存、クリップボードコピー、手順書化。外部サービスへ強制送信しないから、社内情報にも使いやすい設計です。</p>
+            <button class="text-link" data-action="guide">手順書を生成 <span>→</span></button>
+          </div>
+          <div class="share-art">
+            <span class="share-core"><i></i></span>
+            <span class="share-node node-one">PNG</span>
+            <span class="share-node node-two">COPY</span>
+            <span class="share-node node-three">PDF</span>
+            <span class="share-node node-four">LOCAL</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="workflow section-shell" id="workflow">
+      <div class="workflow-copy">
+        <span class="kicker light">FROM MOMENT TO MESSAGE</span>
+        <h2>わずか3ステップ。<br>伝達は、もっと速くなる。</h2>
+        <p>キャプチャした内容をその場で整え、用途に合った形式で届けます。</p>
+        <div class="steps">
+          <button class="step active" data-step="1"><span>1</span><div><b>撮る</b><small>画面・ウィンドウ・タブを選択</small></div></button>
+          <button class="step" data-step="2"><span>2</span><div><b>整える</b><small>注釈とぼかしで要点を明確に</small></div></button>
+          <button class="step" data-step="3"><span>3</span><div><b>届ける</b><small>コピー・保存・手順書化</small></div></button>
+        </div>
+      </div>
+      <div class="workflow-stage" id="workflowStage">
+        <div class="stage-number">01</div>
+        <div class="stage-screen">
+          <div class="stage-top"><span></span><span></span><span></span></div>
+          <div class="stage-content">
+            <div class="stage-sidebar"><i></i><i></i><i></i><i></i></div>
+            <div class="stage-main">
+              <div class="selection-demo"><span>960 × 540</span><i></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+        </div>
+        <span class="stage-caption">キャプチャ範囲を選択</span>
+      </div>
+    </section>
+
+    <section class="security section-shell" id="security">
+      <div class="security-mark"><span>✓</span></div>
+      <div>
+        <span class="kicker">PRIVACY BY DEFAULT</span>
+        <h2>あなたの画面は、<br><em>あなたの端末だけに。</em></h2>
+      </div>
+      <div class="security-copy">
+        <p>LUMICAPは、キャプチャ画像をサーバーへアップロードしません。AIタスクも指示文の作成とチャット起動までをローカルで行い、第三者AIへの送信は利用者が確認して実行します。</p>
+        <div class="security-points">
+          <span><i>✓</i> アカウント不要</span>
+          <span><i>✓</i> トラッキングなし</span>
+          <span><i>✓</i> 自動送信なし</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta section-shell">
+      <div>
+        <span class="kicker light">INSTALL ONCE. USE ANYWHERE.</span>
+        <h2>次の説明を、<br>もっとシンプルに。</h2>
+      </div>
+      <div class="cta-actions">
+        <button class="button white" data-action="install">この端末にインストール <span>↓</span></button>
+        <small>Windows · Ubuntu · Android · iOS · オフライン対応</small>
+      </div>
+      <div class="cta-orb orb-a"></div>
+      <div class="cta-orb orb-b"></div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="brand footer-brand" href="#top"><span class="brand-mark"><i></i></span><span>LUMICAP</span><small>STUDIO</small></a>
+    <p>Capture clearly. Explain instantly.</p>
+    <nav class="legal-links" aria-label="法的情報とサポート">
+      <a href="/privacy/">プライバシー</a>
+      <a href="/terms/">利用規約</a>
+      <a href="/support/">サポート</a>
+    </nav>
+    <span>PUBLIC PWA · CHATGPT APP · 2026</span>
+  </footer>
+
+  <div class="recording-pill" id="recordingPill" hidden>
+    <span class="record-dot"></span><b id="recordTimer">00:00</b>
+    <button data-action="record-stop">録画を停止</button>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <dialog class="modal install-dialog" id="installDialog" aria-labelledby="installTitle">
+    <form method="dialog" class="dialog-close-form"><button aria-label="閉じる">×</button></form>
+    <div class="dialog-kicker">ONE APP · FOUR PLATFORMS</div>
+    <h2 id="installTitle">LUMICAPをインストール</h2>
+    <p class="dialog-lead">この端末に最適な方法を選択しました。インストール後はオフラインでも起動できます。</p>
+    <div class="detected-device"><span>検出した端末</span><b id="detectedPlatform">確認中…</b></div>
+    <div class="platform-grid">
+      <article data-platform-card="windows">
+        <span class="platform-icon">⊞</span><div><h3>Windows</h3><p>ブラウザから安全に一発インストール。スタートメニューへ追加。</p></div>
+        <button type="button" data-action="pwa-install">この端末にインストール <span>＋</span></button>
+      </article>
+      <article data-platform-card="ubuntu">
+        <span class="platform-icon">◉</span><div><h3>Ubuntu</h3><p>Chromium系ブラウザから一発インストール。ランチャーへ追加。</p></div>
+        <button type="button" data-action="pwa-install">この端末にインストール <span>＋</span></button>
+      </article>
+      <article data-platform-card="android">
+        <span class="platform-icon">A</span><div><h3>Android</h3><p>ChromeのPWAとしてホーム画面へ追加。</p></div>
+        <button type="button" data-action="pwa-install">この端末に追加 <span>＋</span></button>
+      </article>
+      <article data-platform-card="ios">
+        <span class="platform-icon">●</span><div><h3>iOS / iPadOS</h3><p>Safariの共有メニューからホーム画面へ追加。</p></div>
+        <button type="button" data-action="ios-help">追加方法を表示 <span>→</span></button>
+      </article>
+    </div>
+    <div class="install-note" id="installNote">HTTPS公開版のため、各端末の標準PWA機能から安全にインストールできます。</div>
+  </dialog>
+
+  <dialog class="modal ai-dialog" id="aiDialog" aria-labelledby="aiDialogTitle">
+    <form method="dialog" class="dialog-close-form"><button aria-label="閉じる">×</button></form>
+    <div class="dialog-kicker">AUTOMATIC CHAT TASK</div>
+    <h2 id="aiDialogTitle">AIタスクを作成</h2>
+    <p class="dialog-lead">目的と追加情報を選び、利用するAIを押してください。指示文をコピーし、新規チャットを開きます。</p>
+    <fieldset class="preset-field">
+      <legend>タスク</legend>
+      <div class="preset-grid">
+        <label><input type="radio" name="aiPreset" value="bug" checked><span><b>バグ報告</b><small>再現手順と原因候補</small></span></label>
+        <label><input type="radio" name="aiPreset" value="manual"><span><b>操作手順書</b><small>明快な番号付き手順</small></span></label>
+        <label><input type="radio" name="aiPreset" value="review"><span><b>UIレビュー</b><small>改善案と優先順位</small></span></label>
+        <label><input type="radio" name="aiPreset" value="translate"><span><b>翻訳・要約</b><small>日本語へ簡潔に整理</small></span></label>
+        <label><input type="radio" name="aiPreset" value="support"><span><b>回答文作成</b><small>顧客サポート返信</small></span></label>
+        <label><input type="radio" name="aiPreset" value="custom"><span><b>自由タスク</b><small>追加指示をそのまま使用</small></span></label>
+      </div>
+    </fieldset>
+    <label class="context-field" for="aiContext"><span>追加情報 <small>任意</small></span>
+      <textarea id="aiContext" rows="3" placeholder="例：このエラーは保存ボタンを押した直後に発生しました。"></textarea>
+    </label>
+    <label class="attach-option"><input id="attachCapture" type="checkbox" checked><span>現在のキャプチャを添付用PNGとして準備する</span></label>
+    <div class="provider-actions">
+      <button type="button" data-provider="chatgpt"><i class="provider-mark chatgpt-mark">C</i><span><b>ChatGPT</b><small>新規チャットで実行</small></span><em>↗</em></button>
+      <button type="button" data-provider="claude"><i class="provider-mark claude-mark">A</i><span><b>Claude</b><small>新規チャットで実行</small></span><em>↗</em></button>
+      <button type="button" data-provider="gemini"><i class="provider-mark gemini-mark">G</i><span><b>Gemini</b><small>新規チャットで実行</small></span><em>↗</em></button>
+    </div>
+    <p class="ai-disclosure"><span>✓</span> LUMICAPからAIへ画像や文章を直接送信しません。コピーされた内容を確認後、各AIで送信してください。</p>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>

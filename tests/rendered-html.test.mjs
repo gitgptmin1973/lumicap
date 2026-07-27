@@ -1,0 +1,123 @@
+import assert from "node:assert/strict";
+import { access, readFile } from "node:fs/promises";
+import test from "node:test";
+
+async function request(pathname, init = {}) {
+  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
+  const { default: worker } = await import(workerUrl.href);
+  return worker.fetch(
+    new Request(`https://lumicap.example${pathname}`, init),
+    {
+      ASSETS: {
+        fetch: async () => new Response("Not found", { status: 404 }),
+      },
+    },
+    {
+      waitUntil() {},
+      passThroughOnException() {},
+    },
+  );
+}
+
+function rpc(method, params, id = 1) {
+  return request("/mcp", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      accept: "application/json, text/event-stream",
+    },
+    body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
+  });
+}
+
+test("root sends visitors to the published LUMICAP PWA", async () => {
+  const response = await request("/");
+  assert.ok([301, 302, 307, 308].includes(response.status));
+  assert.equal(new URL(response.headers.get("location")).pathname, "/studio/");
+  await access(new URL("../public/studio/index.html", import.meta.url));
+  const html = await readFile(
+    new URL("../public/studio/index.html", import.meta.url),
+    "utf8",
+  );
+  assert.match(html, /LUMICAP/);
+  assert.match(html, /PUBLIC PWA · CHATGPT APP/);
+  assert.match(html, /data-action="pwa-install"/);
+});
+
+test("health endpoint reports the production service", async () => {
+  const response = await request("/api/health");
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.deepEqual(body, {
+    ok: true,
+    service: "lumicap-chatgpt-app",
+    version: "1.0.0",
+  });
+});
+
+test("MCP initializes and advertises safe LUMICAP tools", async () => {
+  const initialized = await rpc("initialize", {
+    protocolVersion: "2025-03-26",
+    capabilities: {},
+    clientInfo: { name: "test-client", version: "1" },
+  });
+  assert.equal(initialized.status, 200);
+  const initBody = await initialized.json();
+  assert.equal(initBody.result.serverInfo.name, "lumicap-chatgpt-app");
+  assert.equal(initBody.result.protocolVersion, "2025-03-26");
+
+  const listed = await rpc("tools/list", {});
+  const listBody = await listed.json();
+  assert.deepEqual(
+    listBody.result.tools.map((tool) => tool.name),
+    ["create_capture_task", "open_lumicap_studio"],
+  );
+  for (const tool of listBody.result.tools) {
+    assert.equal(tool.annotations.readOnlyHint, true);
+    assert.equal(tool.annotations.destructiveHint, false);
+    assert.equal(
+      tool._meta["openai/outputTemplate"],
+      "ui://widget/lumicap-task-studio.html",
+    );
+  }
+});
+
+test("MCP returns a submission-ready UI resource", async () => {
+  const response = await rpc("resources/read", {
+    uri: "ui://widget/lumicap-task-studio.html",
+  });
+  const body = await response.json();
+  const resource = body.result.contents[0];
+  assert.equal(resource.mimeType, "text/html;profile=mcp-app");
+  assert.equal(resource._meta.ui.domain, "https://lumicap.example");
+  assert.deepEqual(resource._meta.ui.csp.resourceDomains, [
+    "https://lumicap.example",
+  ]);
+  assert.match(resource.text, /sendFollowUpMessage/);
+  assert.match(resource.text, /LUMICAP TASK STUDIO/);
+});
+
+test("create_capture_task validates inputs and returns structured content", async () => {
+  const invalid = await rpc("tools/call", {
+    name: "create_capture_task",
+    arguments: { task_type: "delete_everything" },
+  });
+  assert.equal(invalid.status, 400);
+  const invalidBody = await invalid.json();
+  assert.equal(invalidBody.error.code, -32602);
+
+  const valid = await rpc("tools/call", {
+    name: "create_capture_task",
+    arguments: { task_type: "bug_report", context: "保存ボタンで停止" },
+  });
+  assert.equal(valid.status, 200);
+  const validBody = await valid.json();
+  assert.equal(validBody.result.structuredContent.taskType, "bug_report");
+  assert.equal(validBody.result.structuredContent.version, 1);
+  assert.match(validBody.result.structuredContent.prompt, /保存ボタンで停止/);
+  assert.equal(
+    validBody.result.structuredContent.studioUrl,
+    "https://lumicap.example/studio/",
+  );
+});

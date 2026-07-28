@@ -628,6 +628,13 @@ html[data-text-scale="xlarge"] .layer-grid { grid-template-columns: 1fr; }
   .platform-center { padding-top: 72px; padding-bottom: 72px; }
   .layer-card { padding: 21px; }
   .layer-actions { grid-template-columns: 1fr; }
+  .site-header { padding-inline: 12px; }
+  .site-header .brand small,
+  .site-header .vision-mini,
+  .site-header .header-cta,
+  .site-header .header-actions>.install-mini:not(.shortcut-mini) { display: none; }
+  .site-header .header-actions { margin-left: auto; }
+  .site-header .shortcut-mini { width: 48px; justify-content: center; }
 }
 @media (max-width: 900px) {
   .vision-mini { font-size: 0; width: 44px; padding: 0; justify-content: center; }

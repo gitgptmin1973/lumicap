@@ -583,7 +583,7 @@ html[data-motion="reduced"] :where(.app-window, .button:hover, .quick-flow>butto
 }
 
 /* Three-layer platform center */
-.platform-center { padding-top: 105px; padding-bottom: 105px; }
+.platform-center { padding-top: 105px; padding-bottom: 105px; scroll-margin-top: 86px; }
 .platform-heading { display: grid; grid-template-columns: 1.2fr .8fr; gap: 52px; align-items: end; }
 .platform-heading h2 { margin: 12px 0 0; font-size: clamp(2.5rem, 5vw, 5rem); line-height: .98; letter-spacing: -.065em; }
 .platform-heading h2 em { color: var(--lime-deep); font-style: normal; }

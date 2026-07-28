@@ -49,6 +49,8 @@ test("Native companion exposes required global shortcuts and hardened boundaries
   assert.match(main, /bytes instanceof Uint8Array/);
   assert.match(renderer, /new Uint8Array\(await blob\.arrayBuffer\(\)\)/);
   assert.deepEqual(configuration.build.protocols[0].schemes, ["lumicap"]);
+  assert.equal(configuration.homepage, "https://github.com/gitgptmin1973/lumicap");
+  assert.equal(configuration.author.email, "gitgptmin1973@users.noreply.github.com");
   assert.ok(configuration.build.linux.target.includes("AppImage"));
   assert.ok(configuration.build.linux.target.includes("deb"));
 });
@@ -62,4 +64,3 @@ test("Cross-platform build and submission documentation are included", async () 
     access(new URL("platform/protocol/lumicap-capture.schema.json", root)),
   ]);
 });
-

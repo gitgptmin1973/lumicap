@@ -3,6 +3,7 @@ name: LUMICAP platform installers
 on:
   workflow_dispatch:
   push:
+    branches: ["main"]
     paths:
       - "platform/**"
       - ".github/workflows/lumicap-platform-build.yml"
@@ -73,4 +74,3 @@ jobs:
           path: |
             platform/native-companion/release/*.AppImage
             platform/native-companion/release/*.deb
-

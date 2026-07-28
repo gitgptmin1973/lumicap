@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "LUMICAP Windows / Ubuntu native capture companion",
   "desktopName": "LUMICAP",
-  "author": "LUMICAP",
+  "homepage": "https://github.com/gitgptmin1973/lumicap",
+  "author": {
+    "name": "LUMICAP",
+    "email": "gitgptmin1973@users.noreply.github.com"
+  },
   "main": "main.js",
   "license": "UNLICENSED",
   "scripts": {

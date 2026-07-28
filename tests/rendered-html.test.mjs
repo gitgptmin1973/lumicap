@@ -51,6 +51,7 @@ test("root sends visitors to the published LUMICAP PWA", async () => {
   assert.match(html, /LUMICAP 3-LAYER PLATFORM/);
   assert.match(html, /LUMICAP-Setup-1\.0\.0\.exe/);
   assert.match(html, /LUMICAP-Chrome-Extension-v1\.0\.0\.zip/);
+  assert.match(html, /LUMICAP-1\.0\.0-x86_64\.AppImage/);
   assert.match(html, /github\.com\/gitgptmin1973\/lumicap\/releases\/download\/v1\.0\.0/);
   assert.match(html, /styles\.css\?v=7/);
   assert.match(html, /app\.js\?v=7/);
@@ -167,6 +168,17 @@ test("get_lumicap_platform returns explicit components, shortcuts, and approval 
   assert.ok(result.components.includes("Native Companion"));
   assert.ok(result.shortcuts.includes("PrintScreen"));
   assert.match(result.links.installer, /LUMICAP-Setup-1\.0\.0\.exe$/);
+});
+
+test("Ubuntu platform tool returns both AppImage and deb downloads", async () => {
+  const response = await rpc("tools/call", {
+    name: "get_lumicap_platform",
+    arguments: { platform: "ubuntu" },
+  });
+  const body = await response.json();
+  const links = body.result.structuredContent.links;
+  assert.match(links.appImage, /LUMICAP-1\.0\.0-x86_64\.AppImage$/);
+  assert.match(links.deb, /LUMICAP-1\.0\.0-amd64\.deb$/);
 });
 
 test("create_capture_task validates inputs and returns structured content", async () => {

@@ -9,7 +9,7 @@ on:
       - ".github/workflows/lumicap-platform-build.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   chrome-extension:
@@ -74,3 +74,10 @@ jobs:
           path: |
             platform/native-companion/release/*.AppImage
             platform/native-companion/release/*.deb
+      - name: Publish Ubuntu packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd release
+          sha256sum *.AppImage *.deb > LUMICAP-Ubuntu-CHECKSUMS.sha256
+          gh release upload v1.0.0 *.AppImage *.deb LUMICAP-Ubuntu-CHECKSUMS.sha256 --repo "$GITHUB_REPOSITORY" --clobber

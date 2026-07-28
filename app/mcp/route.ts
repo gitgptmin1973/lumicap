@@ -478,11 +478,13 @@ export async function POST(request: Request) {
           components: ["Web / PWA", "Native Companion", "Chrome拡張（任意）"],
           links: {
             studio: studioUrl,
+            appImage: `${downloads}/LUMICAP-1.0.0-x86_64.AppImage`,
+            deb: `${downloads}/LUMICAP-1.0.0-amd64.deb`,
             buildKit: `${downloads}/LUMICAP-Ubuntu-BuildKit-v1.0.0.zip`,
             chromeExtension: `${downloads}/LUMICAP-Chrome-Extension-v1.0.0.zip`,
           },
           shortcuts: ["PrintScreen", "Ctrl+Shift+1", "Ctrl+Shift+2", "Ctrl+Shift+3"],
-          note: "公開中のBuildKitはUbuntu上でAppImageとdebを一発生成します。Wayland環境ではOSの画面共有確認が表示される場合があります。",
+          note: "AppImageとdebを選べます。Wayland環境ではOSの画面共有確認が表示される場合があります。",
         },
         android: {
           components: ["Web / PWA"],

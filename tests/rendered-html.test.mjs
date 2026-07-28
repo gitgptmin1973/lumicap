@@ -52,6 +52,8 @@ test("root sends visitors to the published LUMICAP PWA", async () => {
   assert.match(html, /LUMICAP-Setup-1\.0\.0\.exe/);
   assert.match(html, /LUMICAP-Chrome-Extension-v1\.0\.0\.zip/);
   assert.match(html, /github\.com\/gitgptmin1973\/lumicap\/releases\/download\/v1\.0\.0/);
+  assert.match(html, /styles\.css\?v=7/);
+  assert.match(html, /app\.js\?v=7/);
   assert.match(html, /aria-keyshortcuts="Control\+Shift\+1 Meta\+Shift\+1"/);
 });
 

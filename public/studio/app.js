@@ -730,7 +730,7 @@
   });
 
   if ("serviceWorker" in navigator && window.isSecureContext) {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
+    navigator.serviceWorker.register("./sw.js?v=7").catch(() => {});
   }
   applyAccessibilityState();
   initializePlatformLink();

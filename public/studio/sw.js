@@ -2,8 +2,8 @@ const CACHE_NAME = "lumicap-studio-v7-platform-final";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./styles.css",
-  "./app.js",
+  "./styles.css?v=7",
+  "./app.js?v=7",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",

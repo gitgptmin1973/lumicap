@@ -89,6 +89,16 @@ test("low-vision preferences persist and include strong focus and OS accessibili
   assert.match(styles, /html\[data-text-scale="xlarge"\]/);
 });
 
+test("PWA updates online assets before falling back to its offline cache", async () => {
+  const worker = await readFile(
+    new URL("../public/studio/sw.js", import.meta.url),
+    "utf8",
+  );
+  assert.match(worker, /lumicap-studio-v7-platform-final/);
+  assert.match(worker, /fetch\(event\.request\)/);
+  assert.match(worker, /\.catch\(\(\) => caches\.match\(event\.request\)\)/);
+});
+
 test("health endpoint reports the production service", async () => {
   const response = await request("/api/health");
   assert.equal(response.status, 200);

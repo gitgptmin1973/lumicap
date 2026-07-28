@@ -5,7 +5,7 @@ const JSON_HEADERS = {
   "Access-Control-Expose-Headers": "Mcp-Session-Id, MCP-Protocol-Version",
 };
 
-const WIDGET_URI = "ui://widget/lumicap-task-studio.html";
+const WIDGET_URI = "ui://widget/lumicap-task-studio-v2.html";
 const RESOURCE_MIME_TYPE = "text/html;profile=mcp-app";
 const PROTOCOL_VERSION = "2025-03-26";
 
@@ -22,6 +22,8 @@ type TaskType =
   | "ui_review"
   | "translate_summary"
   | "support_reply";
+
+type PlatformType = "windows" | "ubuntu" | "android" | "ios" | "chrome";
 
 const taskCatalog: Record<
   TaskType,
@@ -223,7 +225,7 @@ function toolDescriptors(origin: string) {
         properties: {
           workflow: {
             type: "string",
-            enum: ["capture", "record", "annotate", "ocr", "ai_task"],
+            enum: ["capture", "record", "annotate", "ocr", "ai_task", "platform"],
             description: "開きたいワークフロー",
           },
         },
@@ -236,6 +238,50 @@ function toolDescriptors(origin: string) {
           installGuide: { type: "string" },
         },
         required: ["version", "studioUrl", "installGuide"],
+      },
+      annotations: sharedAnnotations,
+      _meta: appMeta(origin),
+    },
+    {
+      name: "get_lumicap_platform",
+      title: "LUMICAPの導入方法を確認",
+      description:
+        "Windows、Ubuntu、Android、iOS、Chromeのうち指定された環境に必要なLUMICAP構成、公式配布URL、ショートカット、安全上の制約を表示します。インストールは実行しません。",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          platform: {
+            type: "string",
+            enum: ["windows", "ubuntu", "android", "ios", "chrome"],
+            description: "導入先のOSまたはブラウザ",
+          },
+        },
+        required: ["platform"],
+      },
+      outputSchema: {
+        type: "object",
+        properties: {
+          version: { type: "integer" },
+          platform: { type: "string" },
+          components: { type: "array", items: { type: "string" } },
+          links: {
+            type: "object",
+            additionalProperties: { type: "string" },
+          },
+          shortcuts: { type: "array", items: { type: "string" } },
+          approvalRequired: { type: "boolean" },
+          note: { type: "string" },
+        },
+        required: [
+          "version",
+          "platform",
+          "components",
+          "links",
+          "shortcuts",
+          "approvalRequired",
+          "note",
+        ],
       },
       annotations: sharedAnnotations,
       _meta: appMeta(origin),
@@ -396,6 +442,82 @@ export async function POST(request: Request) {
           installGuide:
             "Windows/Ubuntu/Android/iOSでLUMICAPを開き、アプリ内の「インストール」またはブラウザの「ホーム画面に追加」を選択してください。",
         }),
+      );
+    }
+
+    if (name === "get_lumicap_platform") {
+      const platform = args.platform;
+      if (
+        typeof platform !== "string" ||
+        !["windows", "ubuntu", "android", "ios", "chrome"].includes(platform)
+      ) {
+        return failure(rpc.id, -32602, "platform is required");
+      }
+      const downloads =
+        "https://github.com/gitgptmin1973/lumicap/releases/download/v1.0.0";
+      const catalog: Record<
+        PlatformType,
+        {
+          components: string[];
+          links: Record<string, string>;
+          shortcuts: string[];
+          note: string;
+        }
+      > = {
+        windows: {
+          components: ["Web / PWA", "Native Companion", "Chrome拡張（任意）"],
+          links: {
+            studio: studioUrl,
+            installer: `${downloads}/LUMICAP-Setup-1.0.0.exe`,
+            chromeExtension: `${downloads}/LUMICAP-Chrome-Extension-v1.0.0.zip`,
+          },
+          shortcuts: ["PrintScreen", "Ctrl+Shift+1", "Ctrl+Shift+2", "Ctrl+Shift+3"],
+          note: "未署名インストーラーではWindows SmartScreenが確認を表示する場合があります。",
+        },
+        ubuntu: {
+          components: ["Web / PWA", "Native Companion", "Chrome拡張（任意）"],
+          links: {
+            studio: studioUrl,
+            buildKit: `${downloads}/LUMICAP-Ubuntu-BuildKit-v1.0.0.zip`,
+            chromeExtension: `${downloads}/LUMICAP-Chrome-Extension-v1.0.0.zip`,
+          },
+          shortcuts: ["PrintScreen", "Ctrl+Shift+1", "Ctrl+Shift+2", "Ctrl+Shift+3"],
+          note: "公開中のBuildKitはUbuntu上でAppImageとdebを一発生成します。Wayland環境ではOSの画面共有確認が表示される場合があります。",
+        },
+        android: {
+          components: ["Web / PWA"],
+          links: { studio: studioUrl },
+          shortcuts: ["OS標準スクリーンショット後に画像を読み込み"],
+          note: "Chromeの「アプリをインストール」または「ホーム画面に追加」を利用します。",
+        },
+        ios: {
+          components: ["Web / PWA"],
+          links: { studio: studioUrl },
+          shortcuts: ["OS標準スクリーンショット後に画像を読み込み"],
+          note: "Safariの共有メニューから「ホーム画面に追加」を利用します。",
+        },
+        chrome: {
+          components: ["Chrome拡張", "Web / PWA"],
+          links: {
+            studio: studioUrl,
+            extensionPackage: `${downloads}/LUMICAP-Chrome-Extension-v1.0.0.zip`,
+          },
+          shortcuts: ["Ctrl+Shift+1（表示領域）", "Ctrl+Shift+5（ページ全体）"],
+          note: "利用者が操作した現在タブだけへ一時的にアクセスします。",
+        },
+      };
+      const selected = catalog[platform as PlatformType];
+      return success(
+        rpc.id,
+        textResult(
+          `${platform}向けのLUMICAP構成と導入先を確認しました。各端末で初回承認が必要です。`,
+          {
+            version: 1,
+            platform,
+            ...selected,
+            approvalRequired: true,
+          },
+        ),
       );
     }
 

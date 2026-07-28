@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LUMICAP Capture</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <header>
+      <span class="mark" aria-hidden="true">⌗</span>
+      <div><strong>LUMICAP</strong><small>FULL PAGE CAPTURE</small></div>
+    </header>
+    <p>現在のタブだけを取得します。画像は外部へ送信されません。</p>
+    <div class="actions">
+      <button id="fullPage" class="primary"><span>▤</span><b>ページ全体</b><small>自動スクロールして1枚に結合</small></button>
+      <button id="viewport"><span>▣</span><b>表示領域</b><small>現在見えている範囲を取得</small></button>
+      <button id="openStudio"><span>✦</span><b>Studioを開く</b><small>編集・AI・文書化</small></button>
+    </div>
+    <div id="progress" role="status" aria-live="polite">準備完了</div>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

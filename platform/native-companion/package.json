@@ -1,0 +1,65 @@
+{
+  "name": "lumicap-native-companion",
+  "version": "1.0.0",
+  "description": "LUMICAP Windows / Ubuntu native capture companion",
+  "author": "LUMICAP",
+  "main": "main.js",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win nsis",
+    "dist:linux": "electron-builder --linux AppImage deb",
+    "dist": "electron-builder --win nsis --linux AppImage deb"
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0"
+  },
+  "devDependencies": {
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.minopro.lumicap",
+    "productName": "LUMICAP",
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/**"
+    ],
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "index.html",
+      "styles.css",
+      "icon.png",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": ["nsis"],
+      "artifactName": "LUMICAP-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "protocols": [
+      {
+        "name": "LUMICAP Capture",
+        "schemes": ["lumicap"]
+      }
+    ],
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Graphics",
+      "artifactName": "LUMICAP-${version}-${arch}.${ext}",
+      "desktopName": "LUMICAP",
+      "syncDesktopName": true
+    }
+  }
+}

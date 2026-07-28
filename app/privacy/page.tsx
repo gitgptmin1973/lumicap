@@ -7,7 +7,7 @@ export default function PrivacyPage() {
     <main style={styles.main}>
       <a href="/studio/" style={styles.back}>← LUMICAPへ戻る</a>
       <h1>プライバシーポリシー</h1>
-      <p>最終更新日: 2026年7月27日</p>
+      <p>最終更新日: 2026年7月29日</p>
       <h2>基本方針</h2>
       <p>
         LUMICAPはローカルファーストで動作します。キャプチャ、録画、注釈、OCRの
@@ -24,6 +24,13 @@ export default function PrivacyPage() {
       <p>
         PWA設定や下書きはブラウザのローカルストレージへ保存される場合があります。
         外部サービスを開いた後の送信は、ユーザーが各サービス上で確認して実行します。
+      </p>
+      <h2>Chrome拡張とNative Companion</h2>
+      <p>
+        Chrome拡張はユーザーが操作した現在タブだけを取得し、端末内でPNGへ結合
+        します。Native CompanionはOSの初回承認後に画面・マイク・カメラへアクセス
+        し、画像や動画をユーザーが選んだ保存先へ書き込みます。広告、追跡、販売、
+        LUMICAPサーバーへの自動送信は行いません。
       </p>
       <h2>お問い合わせ</h2>
       <p><a href="/support/">サポートページ</a>をご利用ください。</p>

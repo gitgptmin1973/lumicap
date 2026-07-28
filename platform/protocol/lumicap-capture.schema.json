@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lumicap.local/schema/capture-v1.json",
+  "title": "LUMICAP Capture Envelope",
+  "type": "object",
+  "required": ["version", "source", "createdAt", "mediaType", "fileName"],
+  "properties": {
+    "version": { "const": 1 },
+    "source": {
+      "enum": ["pwa", "chrome-extension", "native-windows", "native-linux"]
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "mediaType": {
+      "enum": ["image/png", "video/mp4", "video/webm"]
+    },
+    "fileName": { "type": "string", "minLength": 1 },
+    "captureMode": {
+      "enum": ["viewport", "full-page", "screen", "window", "region", "recording"]
+    },
+    "width": { "type": "integer", "minimum": 1 },
+    "height": { "type": "integer", "minimum": 1 },
+    "delaySeconds": { "type": "integer", "minimum": 0, "maximum": 30 },
+    "cursorIncluded": { "type": "boolean" },
+    "notes": { "type": "string", "maxLength": 4000 }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,76 @@
+name: LUMICAP platform installers
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "platform/**"
+      - ".github/workflows/lumicap-platform-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  chrome-extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate Manifest V3 sources
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('platform/chrome-extension/manifest.json'))"
+          node --check platform/chrome-extension/service-worker.js
+          node --check platform/chrome-extension/content.js
+          node --check platform/chrome-extension/offscreen.js
+          node --check platform/chrome-extension/popup.js
+      - name: Package extension
+        run: |
+          cd platform/chrome-extension
+          zip -r ../../LUMICAP-Chrome-Extension-v1.0.0.zip . -x "*.DS_Store"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LUMICAP-Chrome-Extension-v1.0.0
+          path: LUMICAP-Chrome-Extension-v1.0.0.zip
+
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: platform/native-companion
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: platform/native-companion/package-lock.json
+      - run: npm ci
+      - run: npm run dist:win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LUMICAP-Windows-1.0.0
+          path: platform/native-companion/release/LUMICAP-Setup-1.0.0.exe
+
+  ubuntu:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platform/native-companion
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: platform/native-companion/package-lock.json
+      - run: npm ci
+      - run: npm run dist:linux
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LUMICAP-Ubuntu-1.0.0
+          path: |
+            platform/native-companion/release/*.AppImage
+            platform/native-companion/release/*.deb
+

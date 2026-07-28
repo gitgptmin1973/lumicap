@@ -40,3 +40,5 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+/platform/native-companion/node_modules/
+/platform/native-companion/release/

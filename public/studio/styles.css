@@ -581,6 +581,54 @@ html[data-motion="reduced"] :where(.app-window, .button:hover, .quick-flow>butto
     transition-duration: .001ms !important;
   }
 }
+
+/* Three-layer platform center */
+.platform-center { padding-top: 105px; padding-bottom: 105px; }
+.platform-heading { display: grid; grid-template-columns: 1.2fr .8fr; gap: 52px; align-items: end; }
+.platform-heading h2 { margin: 12px 0 0; font-size: clamp(2.5rem, 5vw, 5rem); line-height: .98; letter-spacing: -.065em; }
+.platform-heading h2 em { color: var(--lime-deep); font-style: normal; }
+.platform-heading>p { max-width: 560px; margin: 0; color: #5e6a70; font-size: 1.0625rem; }
+.platform-status { min-height: 72px; display: flex; align-items: center; gap: 14px; margin: 35px 0 18px; padding: 14px 18px; border: 2px solid #b5c0c4; border-radius: 16px; background: #fff; }
+.platform-status>span { width: 36px; height: 36px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 50%; background: var(--lime); color: var(--ink); font-weight: 900; }
+.platform-status>div { display: flex; flex-direction: column; }
+.platform-status small { color: #68747c; }
+.platform-status.linked { border-color: var(--lime-deep); box-shadow: 0 0 0 4px color-mix(in srgb, var(--lime) 30%, transparent); }
+.layer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.layer-card { min-width: 0; display: flex; flex-direction: column; padding: 27px; border: 1px solid var(--line); border-radius: 24px; background: var(--white); box-shadow: 0 20px 60px rgba(18, 30, 25, .07); }
+.layer-card.layer-native { background: var(--night); color: white; }
+.layer-top { display: flex; justify-content: space-between; align-items: center; }
+.layer-number { color: var(--lime-deep); font-size: .75rem; font-weight: 900; letter-spacing: .15em; }
+.layer-state { padding: 5px 9px; border: 1px solid currentColor; border-radius: 999px; font-size: .6875rem; font-weight: 800; }
+.layer-card h3 { margin: 34px 0 8px; font-size: 1.75rem; }
+.layer-card>p { min-height: 74px; margin: 0; color: #657178; }
+.layer-native>p { color: #b8c2c8; }
+.layer-card ul { display: grid; gap: 9px; margin: 18px 0 25px; padding: 0; list-style: none; }
+.layer-card li::before { content: "✓"; margin-right: 9px; color: var(--lime-deep); font-weight: 900; }
+.layer-native li::before { color: var(--lime); }
+.layer-card kbd { padding: 3px 6px; border: 1px solid #87939a; border-bottom-width: 3px; border-radius: 6px; background: transparent; font: inherit; font-size: .75rem; }
+.layer-card .button { width: 100%; min-height: 48px; margin-top: auto; justify-content: center; text-decoration: none; }
+.layer-download { border: 1px solid var(--ink); background: var(--ink); color: white; }
+.layer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
+.layer-actions .button { padding: 0 10px; font-size: .75rem; }
+.layer-actions .secondary-download { border-color: #6f7b82; background: transparent; }
+.native-launch { min-height: 44px; display: grid; place-items: center; margin-top: 7px; color: var(--lime); text-align: center; font-size: .75rem; font-weight: 800; }
+.platform-disclosure { margin: 18px 0 0; padding: 15px 18px; border-left: 5px solid var(--lime-deep); background: #eef2f0; color: #48545a; font-size: .8125rem; }
+.platform-grid article>a { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid #2a3740; border-radius: 10px; color: inherit; text-decoration: none; font-size: .75rem; font-weight: 800; }
+
+html[data-contrast="high"] :where(.platform-status, .layer-card, .platform-disclosure) { border: 3px solid #000; background: #fff; color: #000; box-shadow: none; }
+html[data-contrast="high"] .layer-native :where(p, a) { color: #000; }
+html[data-text-scale="xlarge"] .layer-grid { grid-template-columns: 1fr; }
+
+@media (max-width: 980px) {
+  .platform-heading { grid-template-columns: 1fr; gap: 20px; }
+  .layer-grid { grid-template-columns: 1fr; }
+  .layer-card>p { min-height: auto; }
+}
+@media (max-width: 520px) {
+  .platform-center { padding-top: 72px; padding-bottom: 72px; }
+  .layer-card { padding: 21px; }
+  .layer-actions { grid-template-columns: 1fr; }
+}
 @media (max-width: 900px) {
   .vision-mini { font-size: 0; width: 44px; padding: 0; justify-content: center; }
   .vision-mini>span { font-size: 1rem; }

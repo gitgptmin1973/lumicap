@@ -1,4 +1,4 @@
-const CACHE_NAME = "lumicap-studio-v5-vision";
+const CACHE_NAME = "lumicap-studio-v6-platform";
 const APP_SHELL = [
   "./",
   "./index.html",

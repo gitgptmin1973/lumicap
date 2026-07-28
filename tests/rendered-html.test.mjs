@@ -47,6 +47,11 @@ test("root sends visitors to the published LUMICAP PWA", async () => {
   assert.match(html, /id="visionDialog"/);
   assert.match(html, /data-text-scale="xlarge"/);
   assert.match(html, /id="accessibilityStatus"/);
+  assert.match(html, /id="platformStatus"/);
+  assert.match(html, /LUMICAP 3-LAYER PLATFORM/);
+  assert.match(html, /LUMICAP-Setup-1\.0\.0\.exe/);
+  assert.match(html, /LUMICAP-Chrome-Extension-v1\.0\.0\.zip/);
+  assert.match(html, /github\.com\/gitgptmin1973\/lumicap\/releases\/download\/v1\.0\.0/);
   assert.match(html, /aria-keyshortcuts="Control\+Shift\+1 Meta\+Shift\+1"/);
 });
 
@@ -110,21 +115,21 @@ test("MCP initializes and advertises safe LUMICAP tools", async () => {
   const listBody = await listed.json();
   assert.deepEqual(
     listBody.result.tools.map((tool) => tool.name),
-    ["create_capture_task", "open_lumicap_studio"],
+    ["create_capture_task", "open_lumicap_studio", "get_lumicap_platform"],
   );
   for (const tool of listBody.result.tools) {
     assert.equal(tool.annotations.readOnlyHint, true);
     assert.equal(tool.annotations.destructiveHint, false);
     assert.equal(
       tool._meta["openai/outputTemplate"],
-      "ui://widget/lumicap-task-studio.html",
+      "ui://widget/lumicap-task-studio-v2.html",
     );
   }
 });
 
 test("MCP returns a submission-ready UI resource", async () => {
   const response = await rpc("resources/read", {
-    uri: "ui://widget/lumicap-task-studio.html",
+    uri: "ui://widget/lumicap-task-studio-v2.html",
   });
   const body = await response.json();
   const resource = body.result.contents[0];
@@ -135,6 +140,21 @@ test("MCP returns a submission-ready UI resource", async () => {
   ]);
   assert.match(resource.text, /sendFollowUpMessage/);
   assert.match(resource.text, /LUMICAP TASK STUDIO/);
+});
+
+test("get_lumicap_platform returns explicit components, shortcuts, and approval boundary", async () => {
+  const response = await rpc("tools/call", {
+    name: "get_lumicap_platform",
+    arguments: { platform: "windows" },
+  });
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  const result = body.result.structuredContent;
+  assert.equal(result.platform, "windows");
+  assert.equal(result.approvalRequired, true);
+  assert.ok(result.components.includes("Native Companion"));
+  assert.ok(result.shortcuts.includes("PrintScreen"));
+  assert.match(result.links.installer, /LUMICAP-Setup-1\.0\.0\.exe$/);
 });
 
 test("create_capture_task validates inputs and returns structured content", async () => {

@@ -33,6 +33,7 @@
       <a href="#studio">スタジオ</a>
       <a href="#features">機能</a>
       <a href="#ai-tasks">AIタスク</a>
+      <a href="#platform">3層連携</a>
       <a href="#workflow">使い方</a>
       <a href="#security">プライバシー</a>
     </nav>
@@ -271,6 +272,48 @@
       </div>
     </section>
 
+    <section class="platform-center section-shell" id="platform" aria-labelledby="platformTitle">
+      <div class="platform-heading">
+        <div>
+          <span class="kicker">LUMICAP 3-LAYER PLATFORM</span>
+          <h2 id="platformTitle">ブラウザの速さと、<br><em>OSの力をひとつに。</em></h2>
+        </div>
+        <p>各層は単独でも使えます。組み合わせると、ページ全体・PrintScreen・MP4・グローバルキーまで一続きになります。</p>
+      </div>
+      <div class="platform-status" id="platformStatus" role="status" aria-live="polite">
+        <span aria-hidden="true">✓</span>
+        <div><b>Web / PWA は利用可能です</b><small>拡張機能と補助アプリは、この端末で初回承認後に連携します。</small></div>
+      </div>
+      <div class="layer-grid">
+        <article class="layer-card layer-web">
+          <div class="layer-top"><span class="layer-number">01</span><span class="layer-state">今すぐ利用可</span></div>
+          <h3>Web / PWA</h3>
+          <p>編集、ぼかし、AIタスク、手順書、共有、オフライン利用。</p>
+          <ul><li>Windows / Ubuntu</li><li>Android / iOS</li><li>弱視・キーボード対応</li></ul>
+          <button class="button primary" data-action="install">PWAを追加 <span>＋</span></button>
+        </article>
+        <article class="layer-card layer-chrome">
+          <div class="layer-top"><span class="layer-number">02</span><span class="layer-state">Chrome 116+</span></div>
+          <h3>Chrome拡張</h3>
+          <p>固定要素の重複を抑えながら、ページ全体を自動スクロールして1枚のPNGへ。</p>
+          <ul><li><kbd>Ctrl</kbd>＋<kbd>Shift</kbd>＋<kbd>5</kbd></li><li>端末内だけで画像結合</li><li>必要時だけ現在タブへアクセス</li></ul>
+          <a class="button layer-download" href="https://github.com/gitgptmin1973/lumicap/releases/download/v1.0.0/LUMICAP-Chrome-Extension-v1.0.0.zip">拡張機能を入手 <span>↓</span></a>
+        </article>
+        <article class="layer-card layer-native">
+          <div class="layer-top"><span class="layer-number">03</span><span class="layer-state">初回OS承認</span></div>
+          <h3>Native Companion</h3>
+          <p>PrintScreen、遅延・カーソル取得、範囲選択、マイク・カメラ付きMP4録画。</p>
+          <ul><li><kbd>PrintScreen</kbd> / <kbd>Ctrl</kbd>＋<kbd>Shift</kbd>＋<kbd>1</kbd></li><li>通知領域で待機</li><li>Windows / Ubuntu</li></ul>
+          <div class="layer-actions">
+            <a class="button layer-download" href="https://github.com/gitgptmin1973/lumicap/releases/download/v1.0.0/LUMICAP-Setup-1.0.0.exe">Windows版 <span>↓</span></a>
+            <a class="button layer-download secondary-download" href="https://github.com/gitgptmin1973/lumicap/releases/download/v1.0.0/LUMICAP-Ubuntu-BuildKit-v1.0.0.zip">Ubuntu BuildKit <span>↓</span></a>
+          </div>
+          <a class="native-launch" href="lumicap://capture">インストール済みならキャプチャを起動 ↗</a>
+        </article>
+      </div>
+      <p class="platform-disclosure"><b>安全上の仕様:</b> ChatGPTへのサインインだけでOSアプリを無確認インストールすることはできません。各端末で一度承認すると、その後はPWA・拡張・補助アプリをショートカットで連携できます。</p>
+    </section>
+
     <section class="security section-shell" id="security">
       <div class="security-mark"><span>✓</span></div>
       <div>
@@ -363,6 +406,7 @@
       <section>
         <h3>すぐ実行</h3>
         <dl>
+          <div><dt>OS全体・Native Companion</dt><dd><kbd>PrintScreen</kbd></dd></div>
           <div><dt>画面キャプチャ</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>1</kbd></dd></div>
           <div><dt>録画 開始 / 停止</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>2</kbd></dd></div>
           <div><dt>AIタスク</dt><dd><kbd>Ctrl</kbd><b>＋</b><kbd>Shift</kbd><b>＋</b><kbd>3</kbd></dd></div>
@@ -405,10 +449,12 @@
       <article data-platform-card="windows">
         <span class="platform-icon">⊞</span><div><h3>Windows</h3><p>ブラウザから安全に一発インストール。スタートメニューへ追加。</p></div>
         <button type="button" data-action="pwa-install">この端末にインストール <span>＋</span></button>
+        <a href="https://github.com/gitgptmin1973/lumicap/releases/download/v1.0.0/LUMICAP-Setup-1.0.0.exe">PrintScreen対応版を入手 <span>↓</span></a>
       </article>
       <article data-platform-card="ubuntu">
         <span class="platform-icon">◉</span><div><h3>Ubuntu</h3><p>Chromium系ブラウザから一発インストール。ランチャーへ追加。</p></div>
         <button type="button" data-action="pwa-install">この端末にインストール <span>＋</span></button>
+        <a href="https://github.com/gitgptmin1973/lumicap/releases/download/v1.0.0/LUMICAP-Ubuntu-BuildKit-v1.0.0.zip">AppImage / deb BuildKit <span>↓</span></a>
       </article>
       <article data-platform-card="android">
         <span class="platform-icon">A</span><div><h3>Android</h3><p>ChromeのPWAとしてホーム画面へ追加。</p></div>

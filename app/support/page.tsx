@@ -24,6 +24,11 @@ export default function SupportPage() {
         「アプリをインストール」を利用できます。
       </p>
       <p>
+        PrintScreenやMP4録画にはWindows / Ubuntu Native Companionが必要です。
+        PrintScreenが別のアプリで使用中の場合はCtrl+Shift+1、録画はCtrl+Shift+2を
+        利用してください。Windowsの未署名版ではSmartScreenの確認が表示される場合があります。
+      </p>
+      <p>
         ChatGPT Appは、ChatGPTの設定から公開MCPエンドポイントを接続した後、
         会話で「LUMICAPを使って」と指定します。
       </p>

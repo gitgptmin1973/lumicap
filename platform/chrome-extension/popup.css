@@ -1,0 +1,41 @@
+:root{color-scheme:light;--ink:#0a1422;--lime:#c9ff52;--line:#d8dfe2}
+*{box-sizing:border-box}
+body{width:350px;margin:0;background:#f4f6f3;color:var(--ink);font:14px/1.5 "Segoe UI","Yu Gothic UI",sans-serif}
+main{padding:18px}
+header{display:flex;align-items:center;gap:11px}
+header>div{display:flex;flex-direction:column}
+header strong{font-size:17px;letter-spacing:-.3px}
+header small{font-size:9px;letter-spacing:1.5px;color:#66727c}
+.mark{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:var(--ink);color:var(--lime);font-size:20px}
+p{margin:15px 0;color:#59656f}
+.actions{display:grid;gap:8px}
+button{min-height:62px;display:grid;grid-template-columns:36px 1fr;grid-template-rows:1fr 1fr;gap:0 10px;align-items:center;border:1px solid var(--line);border-radius:13px;background:#fff;padding:10px 12px;color:var(--ink);text-align:left;cursor:pointer}
+button:hover{border-color:#65717a}
+button:focus-visible{outline:4px solid #0067d9;outline-offset:2px}
+button>span{grid-row:1/3;width:36px;height:36px;display:grid;place-items:center;border-radius:9px;background:#e8edef;font-size:17px}
+button>b{align-self:end}
+button>small{align-self:start;color:#74808a}
+button.primary{border:2px solid var(--ink);background:var(--ink);color:#fff}
+button.primary>span{background:var(--lime);color:var(--ink)}
+button.primary>small{color:#bac5cf}
+#progress{margin-top:12px;min-height:26px;border-radius:8px;background:#e8ece9;padding:5px 8px;color:#536069;font-size:12px}
+#progress {
+  position: relative;
+  overflow: hidden;
+}
+
+#progress::after {
+  position: absolute;
+  content: "";
+  inset: auto 0 0;
+  width: var(--progress, 0%);
+  height: 3px;
+  background: #c9ff52;
+  transition: width 180ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #progress::after {
+    transition: none;
+  }
+}

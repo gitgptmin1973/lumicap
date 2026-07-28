@@ -20,7 +20,9 @@
   const visionDockState = document.querySelector("#visionDockState");
   const detectedPlatform = document.querySelector("#detectedPlatform");
   const installNote = document.querySelector("#installNote");
+  const platformStatus = document.querySelector("#platformStatus");
   const accessibilityStorageKey = "lumicap-accessibility-v1";
+  const platformLinkStorageKey = "lumicap-platform-link-v1";
 
   let activeTool = "select";
   let drawing = false;
@@ -64,7 +66,7 @@
         highContrast: typeof saved.highContrast === "boolean" ? saved.highContrast : defaults.highContrast,
         reducedMotion: typeof saved.reducedMotion === "boolean" ? saved.reducedMotion : defaults.reducedMotion
       };
-    } catch (_) {
+    } catch {
       return defaults;
     }
   }
@@ -90,7 +92,7 @@
     visionDockState.textContent = accessibilitySummary();
     try {
       localStorage.setItem(accessibilityStorageKey, JSON.stringify(accessibilityState));
-    } catch (_) {}
+    } catch {}
     if (announce) accessibilityStatus.textContent = `見やすさ設定を変更しました。${accessibilitySummary()}。`;
   }
 
@@ -161,7 +163,7 @@
     try {
       undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
       if (undoStack.length > 16) undoStack.shift();
-    } catch (_) {}
+    } catch {}
   }
 
   function undo() {
@@ -395,7 +397,7 @@
       const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
       toast("画像をクリップボードへコピーしました");
-    } catch (_) {
+    } catch {
       toast("クリップボードを利用できませんでした");
     }
   }
@@ -481,6 +483,30 @@
     installNote.scrollIntoView({ behavior: accessibilityState.reducedMotion ? "auto" : "smooth", block: "nearest" });
   }
 
+  function initializePlatformLink() {
+    const source = new URLSearchParams(location.search).get("source");
+    const allowedSources = ["chrome-extension", "native-companion"];
+    if (allowedSources.includes(source)) {
+      try {
+        const stored = JSON.parse(localStorage.getItem(platformLinkStorageKey) || "{}");
+        stored[source] = new Date().toISOString();
+        localStorage.setItem(platformLinkStorageKey, JSON.stringify(stored));
+      } catch {}
+    }
+    let linked = {};
+    try {
+      linked = JSON.parse(localStorage.getItem(platformLinkStorageKey) || "{}");
+    } catch {}
+    const labels = [];
+    if (linked["chrome-extension"]) labels.push("Chrome拡張");
+    if (linked["native-companion"]) labels.push("Native Companion");
+    if (!labels.length || !platformStatus) return;
+    platformStatus.classList.add("linked");
+    platformStatus.querySelector("b").textContent = `${labels.join("・")}との連携を確認しました`;
+    platformStatus.querySelector("small").textContent = "このブラウザでは連携済みとして記録しました。実際の取得権限は操作時にOS／Chromeが確認します。";
+    if (source) toast(`${labels.at(-1)}からLUMICAPを開きました`);
+  }
+
   const taskTemplates = {
     bug: `添付する画面キャプチャを分析し、再現可能なバグ報告を日本語で作成してください。
 出力: 1.要約 2.発生環境 3.再現手順 4.期待する結果 5.実際の結果 6.原因候補 7.重要度 8.追加確認事項。
@@ -558,7 +584,7 @@
     try {
       await copyText(prompt);
       const prepared = prepareCaptureForAi();
-      aiDialog.open && aiDialog.close();
+      if (aiDialog.open) aiDialog.close();
       toast(prepared ? "指示文をコピーし、添付画像を保存しました" : "指示文をコピーしました。AIへ貼り付けてください");
     } catch {
       toast("AIを開きました。指示文を手動で貼り付けてください");
@@ -585,7 +611,7 @@
         },
         annotations: { readOnlyHint: true }
       });
-    } catch (_) {}
+    } catch {}
   }
 
   document.addEventListener("click", (event) => {
@@ -707,5 +733,6 @@
     navigator.serviceWorker.register("./sw.js").catch(() => {});
   }
   applyAccessibilityState();
+  initializePlatformLink();
   registerAgentTools();
 })();

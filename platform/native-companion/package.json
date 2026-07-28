@@ -2,6 +2,7 @@
   "name": "lumicap-native-companion",
   "version": "1.0.0",
   "description": "LUMICAP Windows / Ubuntu native capture companion",
+  "desktopName": "LUMICAP",
   "author": "LUMICAP",
   "main": "main.js",
   "license": "UNLICENSED",
@@ -58,7 +59,6 @@
       "target": ["AppImage", "deb"],
       "category": "Graphics",
       "artifactName": "LUMICAP-${version}-${arch}.${ext}",
-      "desktopName": "LUMICAP",
       "syncDesktopName": true
     }
   }

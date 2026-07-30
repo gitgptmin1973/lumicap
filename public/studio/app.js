@@ -23,6 +23,8 @@
   const platformStatus = document.querySelector("#platformStatus");
   const accessibilityStorageKey = "lumicap-accessibility-v1";
   const platformLinkStorageKey = "lumicap-platform-link-v1";
+  const preferencesDatabaseName = "lumicap-preferences-v1";
+  const preferencesStoreName = "settings";
 
   let activeTool = "select";
   let drawing = false;
@@ -36,7 +38,7 @@
   let recordStartedAt = 0;
   let recordInterval = null;
   let deferredInstallPrompt = null;
-  let accessibilityState = loadAccessibilityState();
+  let accessibilityState = defaultAccessibilityState();
 
   const pad = (n) => String(n).padStart(2, "0");
   const stamp = () => {
@@ -53,22 +55,67 @@
     document.querySelector("#saveState").textContent = message;
   };
 
-  function loadAccessibilityState() {
-    const defaults = {
+  function defaultAccessibilityState() {
+    return {
       textScale: "default",
       highContrast: false,
       reducedMotion: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches || false
     };
+  }
+
+  function openPreferencesDatabase() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(preferencesDatabaseName, 1);
+      request.addEventListener("upgradeneeded", () => {
+        if (!request.result.objectStoreNames.contains(preferencesStoreName)) {
+          request.result.createObjectStore(preferencesStoreName);
+        }
+      });
+      request.addEventListener("success", () => resolve(request.result));
+      request.addEventListener("error", () => reject(request.error));
+      request.addEventListener("blocked", () => reject(new Error("IndexedDB upgrade blocked")));
+    });
+  }
+
+  async function readPreference(key, fallback) {
+    const database = await openPreferencesDatabase();
     try {
-      const saved = JSON.parse(localStorage.getItem(accessibilityStorageKey) || "{}");
-      return {
-        textScale: ["default", "large", "xlarge"].includes(saved.textScale) ? saved.textScale : defaults.textScale,
-        highContrast: typeof saved.highContrast === "boolean" ? saved.highContrast : defaults.highContrast,
-        reducedMotion: typeof saved.reducedMotion === "boolean" ? saved.reducedMotion : defaults.reducedMotion
-      };
-    } catch {
-      return defaults;
+      return await new Promise((resolve, reject) => {
+        const request = database
+          .transaction(preferencesStoreName, "readonly")
+          .objectStore(preferencesStoreName)
+          .get(key);
+        request.addEventListener("success", () => resolve(request.result ?? fallback));
+        request.addEventListener("error", () => reject(request.error));
+      });
+    } finally {
+      database.close();
     }
+  }
+
+  async function writePreference(key, value) {
+    const database = await openPreferencesDatabase();
+    try {
+      await new Promise((resolve, reject) => {
+        const transaction = database.transaction(preferencesStoreName, "readwrite");
+        transaction.objectStore(preferencesStoreName).put(value, key);
+        transaction.addEventListener("complete", resolve);
+        transaction.addEventListener("error", () => reject(transaction.error));
+        transaction.addEventListener("abort", () => reject(transaction.error));
+      });
+    } finally {
+      database.close();
+    }
+  }
+
+  async function loadAccessibilityState() {
+    const defaults = defaultAccessibilityState();
+    const saved = await readPreference(accessibilityStorageKey, {});
+    return {
+      textScale: ["default", "large", "xlarge"].includes(saved.textScale) ? saved.textScale : defaults.textScale,
+      highContrast: typeof saved.highContrast === "boolean" ? saved.highContrast : defaults.highContrast,
+      reducedMotion: typeof saved.reducedMotion === "boolean" ? saved.reducedMotion : defaults.reducedMotion
+    };
   }
 
   function accessibilitySummary() {
@@ -79,7 +126,7 @@
     return active.join("・");
   }
 
-  function applyAccessibilityState(announce = false) {
+  function applyAccessibilityState(announce = false, persist = true) {
     const root = document.documentElement;
     root.dataset.textScale = accessibilityState.textScale;
     root.dataset.contrast = accessibilityState.highContrast ? "high" : "standard";
@@ -90,9 +137,9 @@
     document.querySelector('[data-action="contrast"]')?.setAttribute("aria-pressed", String(accessibilityState.highContrast));
     document.querySelector('[data-action="motion"]')?.setAttribute("aria-pressed", String(accessibilityState.reducedMotion));
     visionDockState.textContent = accessibilitySummary();
-    try {
-      localStorage.setItem(accessibilityStorageKey, JSON.stringify(accessibilityState));
-    } catch {}
+    if (persist) {
+      writePreference(accessibilityStorageKey, accessibilityState).catch(() => {});
+    }
     if (announce) accessibilityStatus.textContent = `見やすさ設定を変更しました。${accessibilitySummary()}。`;
   }
 
@@ -483,20 +530,19 @@
     installNote.scrollIntoView({ behavior: accessibilityState.reducedMotion ? "auto" : "smooth", block: "nearest" });
   }
 
-  function initializePlatformLink() {
+  async function initializePlatformLink() {
     const source = new URLSearchParams(location.search).get("source");
     const allowedSources = ["chrome-extension", "native-companion"];
-    if (allowedSources.includes(source)) {
-      try {
-        const stored = JSON.parse(localStorage.getItem(platformLinkStorageKey) || "{}");
-        stored[source] = new Date().toISOString();
-        localStorage.setItem(platformLinkStorageKey, JSON.stringify(stored));
-      } catch {}
-    }
     let linked = {};
     try {
-      linked = JSON.parse(localStorage.getItem(platformLinkStorageKey) || "{}");
+      linked = await readPreference(platformLinkStorageKey, {});
     } catch {}
+    if (allowedSources.includes(source)) {
+      try {
+        linked[source] = new Date().toISOString();
+        await writePreference(platformLinkStorageKey, linked);
+      } catch {}
+    }
     const labels = [];
     if (linked["chrome-extension"]) labels.push("Chrome拡張");
     if (linked["native-companion"]) labels.push("Native Companion");
@@ -730,9 +776,15 @@
   });
 
   if ("serviceWorker" in navigator && window.isSecureContext) {
-    navigator.serviceWorker.register("./sw.js?v=7").catch(() => {});
+    navigator.serviceWorker.register("./sw.js?v=8").catch(() => {});
   }
-  applyAccessibilityState();
-  initializePlatformLink();
+  applyAccessibilityState(false, false);
+  loadAccessibilityState()
+    .then((savedState) => {
+      accessibilityState = savedState;
+      applyAccessibilityState(false, false);
+    })
+    .catch(() => {});
+  initializePlatformLink().catch(() => {});
   registerAgentTools();
 })();

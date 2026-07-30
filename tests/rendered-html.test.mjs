@@ -49,12 +49,13 @@ test("root sends visitors to the published LUMICAP PWA", async () => {
   assert.match(html, /id="accessibilityStatus"/);
   assert.match(html, /id="platformStatus"/);
   assert.match(html, /LUMICAP 3-LAYER PLATFORM/);
+  assert.match(html, /\[AI-Generated \/ WM-05 \/ LUMICAP \/ 2026-07-31\]/);
   assert.match(html, /LUMICAP-Setup-1\.0\.0\.exe/);
   assert.match(html, /LUMICAP-Chrome-Extension-v1\.0\.0\.zip/);
   assert.match(html, /LUMICAP-1\.0\.0-x86_64\.AppImage/);
   assert.match(html, /github\.com\/gitgptmin1973\/lumicap\/releases\/download\/v1\.0\.0/);
-  assert.match(html, /styles\.css\?v=7/);
-  assert.match(html, /app\.js\?v=7/);
+  assert.match(html, /styles\.css\?v=8/);
+  assert.match(html, /app\.js\?v=8/);
   assert.match(html, /aria-keyshortcuts="Control\+Shift\+1 Meta\+Shift\+1"/);
 });
 
@@ -78,13 +79,15 @@ test("keyboard shortcuts cover capture, record, AI, export, and editor tools", a
   assert.match(script, /"6": openVisionDialog/);
 });
 
-test("low-vision preferences persist and include strong focus and OS accessibility fallbacks", async () => {
+test("low-vision preferences persist in IndexedDB and include strong focus and OS accessibility fallbacks", async () => {
   const [script, styles] = await Promise.all([
     readFile(new URL("../public/studio/app.js", import.meta.url), "utf8"),
     readFile(new URL("../public/studio/styles.css", import.meta.url), "utf8"),
   ]);
   assert.match(script, /lumicap-accessibility-v1/);
-  assert.match(script, /localStorage\.setItem/);
+  assert.match(script, /indexedDB\.open/);
+  assert.match(script, /preferencesStoreName/);
+  assert.doesNotMatch(script, /\b(?:localStorage|sessionStorage)\b/);
   assert.match(script, /dataset\.contrast/);
   assert.match(script, /prefers-reduced-motion: reduce/);
   assert.match(styles, /outline: 4px solid var\(--focus\)/);
@@ -97,7 +100,7 @@ test("PWA updates online assets before falling back to its offline cache", async
     new URL("../public/studio/sw.js", import.meta.url),
     "utf8",
   );
-  assert.match(worker, /lumicap-studio-v7-platform-final/);
+  assert.match(worker, /lumicap-studio-v8-indexeddb/);
   assert.match(worker, /fetch\(event\.request\)/);
   assert.match(worker, /\.catch\(\(\) => caches\.match\(event\.request\)\)/);
 });
